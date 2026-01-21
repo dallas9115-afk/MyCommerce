@@ -30,7 +30,8 @@ public class App {
             System.out.println("0. 종료             | 프로그램 종료 ");
 
             System.out.print("입력 : ");
-            int choice = scanner.nextInt();
+            String input = scanner.nextLine(); //  입력을 String 으로 받음 (버퍼 문제 해결)
+            int choice = Integer.parseInt(input); // 입력 받은 문자열을 정수로 변환함
             if (choice == 0){
                 System.out.println("커머스 플랫폼을 종료합니다.");
                 break;
