@@ -12,7 +12,7 @@ public class Product {
         this.stock = stock;
     } // 생성자 생성 완료
 
-    // 각 재고를 확인할 수 있는 getter 형성
+    // 각 필드를 가져올 수 있는 getter 형성(캡슐화 고려)
 
     public String getName() {
         return name;
