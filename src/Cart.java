@@ -6,6 +6,12 @@ public class Cart {
     private Map<Product, Integer> items = new HashMap<>();
 
     public  void  addProduct(Product product, int quantity) {
+        //(유효성 검사 추가 : 추가 수량이 0 이하일 시 입력 불가하도록 조치)
+        if(quantity <= 0){
+            System.out.println("장바구니에는 최소 1개 이상 담아야합니다.");
+            return; // 메서드 강제 종료
+        }
+
         //재고 검사(이미 담은 개수 + 추가 갯수가 현 재고량을 넘는지 검사
         int currentQuantity = items.getOrDefault(product, 0);
         if (currentQuantity + quantity > product.getStock()) {

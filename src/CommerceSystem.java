@@ -128,7 +128,12 @@ public class CommerceSystem {
                     System.out.println("담을 수량을 입력해주세요.");
                     System.out.print("수량 : ");
                     int quantity = Integer.parseInt(scanner.nextLine());
-
+                    // 0개 및 그 이하의 수를 담지 않게 유효성 검사
+                    if (quantity > 0) {
+                        cart.addProduct(selectedProduct, quantity);
+                    } else {
+                        System.out.println("0개 이하는 담을 수 없습니다.");
+                    }
                     //위에서 입력받은 수량 기준으로 cart 클래스 활용
                     cart.addProduct(selectedProduct, quantity);
                 }
