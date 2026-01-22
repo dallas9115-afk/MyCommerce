@@ -25,6 +25,7 @@ public class CommerceSystem {
 
             }
             System.out.println("0. 종료             | 프로그램 종료 ");
+            System.out.println("6. 관리자 모드");
 
             //장바구니 시스템 추가. 장바구니가 비어있지 않다면 주문 메뉴 출력
             if (!cart.isEmpty()){
@@ -46,8 +47,13 @@ public class CommerceSystem {
             if (choice == 0){
                 System.out.println("커머스 플랫폼을 종료합니다.");
                 break;
-                // 프로그램 종료 (아래는 장바구니에 물건이 있을 때 결제, 취소 로직)
+                // 프로그램 종료 (아래는 장바구니에 물건이 있을 때 결제, 취소, 관리자 모드 진입 로직)
             }
+
+            else if (choice == 6) {
+                enterAdminMode(scanner);
+            }
+
             else if (choice == 4 && !cart.isEmpty()) {
                 //  장바구니 목록 보여주기
                 cart.showItems();
@@ -89,6 +95,156 @@ public class CommerceSystem {
         }
         scanner.close();
 
+    }
+
+    private void enterAdminMode(Scanner scanner) {
+
+        System.out.print("\n관리자 비밀번호를 입력해주세요: ");
+        String password = scanner.nextLine();
+
+        // 비밀번호 하드코딩 (실제라면? -> DB or 환경변수 처리)
+        if ("admin123".equals(password)) {
+            System.out.println("관리자 모드에 접속합니다.");
+            showAdminMenu(scanner); // 비밀번호 맞을 시 메뉴 진입
+        } else {
+            System.out.println("비밀번호가 틀렸습니다. 메인으로 돌아갑니다.");
+        }
+
+    }
+    // 관리자용 메뉴 출력
+    private void showAdminMenu(Scanner scanner) {
+        while (true) {
+            System.out.println("\n[ 관리자 모드 ]");
+            System.out.println("1. 상품 추가");
+            System.out.println("2. 상품 수정");
+            System.out.println("3. 상품 삭제");
+            System.out.println("4. 전체 상품 현황");
+            System.out.println("0. 메인으로 돌아가기");
+            System.out.print("입력: ");
+
+            int choice = -1;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("숫자만 입력해 주세요.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    addProduct(scanner); // 미구현(추후 추가)
+                    break;
+                case 2:
+                    updateProduct(scanner); // 미구현(추후 추가)
+                    break;
+                case 3:
+                    deleteProduct(scanner); // 미구현(추후 추가)
+                    break;
+                case 4:
+                    checkAllProducts(); // 미구현(추후 추가)
+                    break;
+                case 0:
+                    return; // 메인(start)으로 복귀
+                default:
+                    System.out.println("잘못된 번호입니다.");
+            }
+        }
+    }
+
+    private void addProduct(Scanner scanner) {
+        System.out.println("\n[ 상품 추가 ]");
+        System.out.println("어느 카테고리에 상품을 추가하시겠습니까?");
+
+        // 1. 카테고리 선택
+        for (int i = 0; i < categories.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, categories.get(i).getName());
+        }
+        System.out.print("입력: ");
+
+        int catChoice = -1;
+        try {
+            catChoice = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("숫자만 입력해 주세요.");
+            return;
+        }
+
+        if (catChoice < 1 || catChoice > categories.size()) {
+            System.out.println("잘못된 카테고리 번호입니다.");
+            return;
+        }
+
+        Category targetCategory = categories.get(catChoice - 1);
+
+        // 2. 상품 정보 입력
+        System.out.printf("\n[ %s 카테고리에 상품 추가 ]\n", targetCategory.getName());
+
+        System.out.print("상품명을 입력해주세요: ");
+        String name = scanner.nextLine();
+
+        // ★ 중복 이름 체크 (같은 카테고리 내에 같은 이름 금지)
+        for (Product p : targetCategory.getProducts()) {
+            if (p.getName().equals(name)) {
+                System.out.println("이미 존재하는 상품명입니다! (" + name + ")");
+                return;
+            }
+        }
+
+        System.out.print("가격을 입력해주세요: ");
+        int price = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("상품 설명을 입력해주세요: ");
+        String description = scanner.nextLine();
+
+        System.out.print("재고수량을 입력해주세요: ");
+        int stock = Integer.parseInt(scanner.nextLine());
+
+        // 3. 최종 확인 및 저장
+        System.out.println("\n---------------------------------");
+        System.out.printf("%s | %,d원 | %s | 재고: %d개\n", name, price, description, stock);
+        System.out.println("---------------------------------");
+        System.out.println("위 정보로 상품을 추가하시겠습니까?");
+        System.out.println("1. 확인    2. 취소");
+        System.out.print("입력: ");
+
+        int confirm = Integer.parseInt(scanner.nextLine());
+        if (confirm == 1) {
+            // Category에 추가
+            Product newProduct = new Product(name, price, description, stock);
+            targetCategory.addProduct(newProduct);
+            System.out.println("상품이 성공적으로 추가되었습니다!");
+        } else {
+            System.out.println("취소되었습니다.");
+        }
+    }
+
+    private void updateProduct(Scanner scanner) {
+        System.out.println("추후 구현 예정");
+    }
+
+    private void deleteProduct(Scanner scanner) {
+        System.out.println("추후 구현 예정");
+    }
+    private void checkAllProducts() {
+        System.out.println("\n[ 전체 상품 현황 ]");
+
+        // 이중 반복문 활용하여 모든 카테고리와 상품 확인
+        for (Category category : categories) {
+            System.out.printf("\n[ %s 카테고리 ]\n", category.getName());
+
+            List<Product> products = category.getProducts();
+            if (products.isEmpty()) {
+                System.out.println("(상품 없음)");
+                continue;
+            }
+
+            for (int i = 0; i < products.size(); i++) {
+                Product p = products.get(i);
+                // 관리자용 재고 확인
+                System.out.printf("%d. %-15s | %,d원 | 재고: %d개 | %s\n",
+                        i + 1, p.getName(), p.getPrice(), p.getStock(), p.getDescription());
+            }
+        }
     }
 
     private void showProductMenu(Scanner scanner, Category category){
