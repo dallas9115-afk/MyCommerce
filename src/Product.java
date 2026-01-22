@@ -30,4 +30,11 @@ public class Product {
         return stock;
     }
 
+    public void reduceStock(int quantity) {
+        if (this.stock < quantity) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+        this.stock -= quantity;
+    } // 재고를 줄이고, 구매하려는 내용이 재고보다 많으면 재고부족 예외를 출력
+
 }
