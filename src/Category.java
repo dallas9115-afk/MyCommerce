@@ -20,4 +20,14 @@ public class Category {
     public List<Product> getProducts() {
         return products;
     }
+
+    // 상품 추가 (관리자용)
+    public void addProduct(Product product) {
+        this.products.add(product);
+    }
+
+    // 상품 삭제 (관리자용)
+    public void removeProduct(Product product) {
+        this.products.remove(product);
+    }
 }

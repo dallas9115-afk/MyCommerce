@@ -66,4 +66,9 @@ public class Cart {
         return items.isEmpty();
     }
 
+    // 특정 상품 제거(관리자 상품 삭제 시, 장바구니에서도 삭제되게 만드는 메서드)
+    public void removeProduct(Product product) {
+        items.remove(product);
+    }
+
 }

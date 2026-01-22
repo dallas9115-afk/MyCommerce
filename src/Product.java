@@ -37,4 +37,21 @@ public class Product {
         this.stock -= quantity;
     } // 재고를 줄이고, 구매하려는 내용이 재고보다 많으면 재고부족 예외를 출력
 
+    //이 아래는 관리자 CRUD 구현을 위한 Setter
+
+    // 가격 수정
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    // 설명 수정
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    // 재고 수정
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
 }
