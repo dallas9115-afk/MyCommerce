@@ -57,28 +57,70 @@ public class CommerceSystem {
             else if (choice == 4 && !cart.isEmpty()) {
                 //  장바구니 목록 보여주기
                 cart.showItems();
-
-                //  총 금액 계산 및 출력
-                int total = cart.calculateTotalPrice();
-                System.out.printf("\n[ 총 주문 금액 ]\n%,d원\n", total);
-
-                // 주문 의사 확인
-                System.out.println("\n1. 주문 확정      2. 메인으로 돌아가기");
+                int currentOrderPrice = cart.calculateTotalPrice();
+                System.out.printf("\n[ 현재 주문 총액 ]\n%,d원\n", currentOrderPrice);
+                System.out.println("\n1. 주문 진행 (회원 등급 할인 적용)");
+                System.out.println("2. 메인으로 돌아가기");
                 System.out.print("입력: ");
-                int orderChoice = Integer.parseInt(scanner.nextLine());
 
-                if (orderChoice == 1) {
-                    // 재고 차감 -> 장바구니 클리어 -> 주문 완료
+
+                int orderStep = -1;
+                try {
+                    orderStep = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) { /* 무시 */ };
+
+                if (orderStep == 1) {
+                    // 2. 회원 등급 시뮬레이션 (누적 금액 입력받기)
+                    System.out.println("\n[ 회원 등급 조회 ]");
+                    System.out.println("현재까지의 누적 구매 금액을 입력해 주세요 (시뮬레이션 용)");
+                    System.out.print("금액 입력: ");
+
+                    int accumulatedAmount = 0;
                     try {
-                        cart.decreaseStock(); // 재고 차감 (재고 부족 시 에러 출력)
-                        cart.clear();         // 장바구니 클리어
-                        System.out.printf("주문이 완료되었습니다! 총 금액: %,d원\n", total);
-                    } catch (IllegalArgumentException e) {
-                        // 재고 부족 시 발생하는 에러 메세지 출력용
-                        System.out.println("주문 실패: " + e.getMessage());
+                        accumulatedAmount = Integer.parseInt(scanner.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("잘못된 입력입니다. 0원으로 처리합니다.");
+                    }
+
+                    // 3. Enum을 활용한 등급 판별 및 할인 계산
+                    CustomerGrade userGrade = CustomerGrade.of(accumulatedAmount);
+                    int discountAmount = userGrade.calculateDiscount(currentOrderPrice);
+                    int finalPrice = currentOrderPrice - discountAmount;
+
+                    // 4. 영수증 미리보기 출력
+                    System.out.println("\n========================================");
+                    System.out.printf(" 고객 등급    : %s (기준: %,d원)\n", userGrade.getLabel(), accumulatedAmount);
+                    System.out.printf(" 적용 할인율  : %d%%\n", userGrade.getDiscountRate());
+                    System.out.println("----------------------------------------");
+                    System.out.printf(" 주문 금액    :  %,10d원\n", currentOrderPrice);
+                    System.out.printf(" 할인 금액    : -%,10d원\n", discountAmount);
+                    System.out.println("----------------------------------------");
+                    System.out.printf(" 최종 결제액  :  %,10d원\n", finalPrice);
+                    System.out.println("========================================");
+
+                    // 5. 최종 결제 확정
+                    System.out.println("\n위 금액으로 결제하시겠습니까?");
+                    System.out.println("1. 결제 확정    2. 취소");
+                    System.out.print("입력: ");
+
+                    int finalConfirm = -1;
+                    try {
+                        finalConfirm = Integer.parseInt(scanner.nextLine());
+                    } catch (NumberFormatException e) {}
+
+                    if (finalConfirm == 1) {
+                        try {
+                            // 재고 차감 및 장바구니 비우기
+                            cart.decreaseStock();
+                            cart.clear();
+                            System.out.printf("\n주문이 완료되었습니다! (최종 결제: %,d원)\n", finalPrice);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("\n 주문 실패: " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("\n주문을 취소했습니다.");
                     }
                 }
-
             }
             //주문 취소 (장바구니 클리어)
             else if (choice == 5 && !cart.isEmpty()) {
@@ -132,16 +174,16 @@ public class CommerceSystem {
 
             switch (choice) {
                 case 1:
-                    addProduct(scanner); // 미구현(추후 추가)
+                    addProduct(scanner);
                     break;
                 case 2:
-                    updateProduct(scanner); // 미구현(추후 추가)
+                    updateProduct(scanner);
                     break;
                 case 3:
-                    deleteProduct(scanner); // 미구현(추후 추가)
+                    deleteProduct(scanner);
                     break;
                 case 4:
-                    checkAllProducts(); // 미구현(추후 추가)
+                    checkAllProducts();
                     break;
                 case 0:
                     return; // 메인(start)으로 복귀

@@ -32,5 +32,6 @@ public class App {
         CommerceSystem system = new CommerceSystem(categories, customer);
 
         system.start();
+
     }
 }
