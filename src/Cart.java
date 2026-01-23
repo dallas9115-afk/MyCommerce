@@ -44,22 +44,20 @@ public class Cart {
         items.clear();
     }
 
-    // 실제 재고 차감(주문 시)
+    // 실제 재고 차감(주문 시) 리팩터링
+    // 각 아이템(entry)마다 상품(키) 를 확인 -> 수량만큼 재고 차감
     public void decreaseStock() {
-        for (Map.Entry<Product, Integer> entry : items.entrySet()) {
-            Product p = entry.getKey();
-            int quantity = entry.getValue();
-            p.reduceStock(quantity); // Product 에서 새로 만든 메서드 활용
-        }
+        items.forEach((product, quantity) -> {
+            product.reduceStock(quantity);
+        });
     }
 
     //총액 계산 메서드
     public int calculateTotalPrice(){
-        int total = 0;
-        for(Map.Entry<Product, Integer> entry : items.entrySet()) {
-            total += (entry.getKey().getPrice() * entry.getValue());
-        }
-        return  total;
+        return items.entrySet().stream()
+                .mapToInt(entry -> entry.getKey().getPrice() * entry.getValue())
+                .sum();
+        // entrySet 스트림 -> 각 데이터를 mapToInt로 바꿈 -> 모든 값을 더함
     }
 
     public boolean isEmpty() {
