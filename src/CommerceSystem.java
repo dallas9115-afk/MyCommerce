@@ -182,7 +182,7 @@ public class CommerceSystem {
         System.out.print("상품명을 입력해주세요: ");
         String name = scanner.nextLine();
 
-        // ★ 중복 이름 체크 (같은 카테고리 내에 같은 이름 금지)
+        // 중복 이름 체크 (같은 카테고리 내에 같은 이름 금지)
         for (Product p : targetCategory.getProducts()) {
             if (p.getName().equals(name)) {
                 System.out.println("이미 존재하는 상품명입니다! (" + name + ")");
@@ -219,16 +219,109 @@ public class CommerceSystem {
     }
 
     private void updateProduct(Scanner scanner) {
-        System.out.println("추후 구현 예정");
+        System.out.println("\n[ 상품 수정 ]");
+
+        // 1. 대상 찾기 (카테고리 -> 상품)
+        Product targetProduct = selectProductToProcess(scanner, "수정");
+        if (targetProduct == null) return; // 취소했거나 잘못 고름
+
+        // 2. 수정할 항목 선택
+        System.out.println("\n[ 수정할 항목 선택 ]");
+        System.out.println("1. 가격");
+        System.out.println("2. 설명");
+        System.out.println("3. 재고");
+        System.out.print("입력: ");
+
+        int choice = -1;
+        try {
+            choice = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("숫자만 입력해 주세요.");
+            return;
+        }
+
+        // 3. 새로운 값 입력받고 Setter로 수정
+        switch (choice) {
+            case 1:
+                System.out.printf("현재 가격: %,d원\n", targetProduct.getPrice());
+                System.out.print("수정할 가격: ");
+                int newPrice = Integer.parseInt(scanner.nextLine());
+                targetProduct.setPrice(newPrice);
+                System.out.println("가격이 수정되었습니다.");
+                break;
+            case 2:
+                System.out.printf("현재 설명: %s\n", targetProduct.getDescription());
+                System.out.print("수정할 설명: ");
+                String newDesc = scanner.nextLine();
+                targetProduct.setDescription(newDesc);
+                System.out.println("설명이 수정되었습니다.");
+                break;
+            case 3:
+                System.out.printf("현재 재고: %d개\n", targetProduct.getStock());
+                System.out.print("수정할 재고: ");
+                int newStock = Integer.parseInt(scanner.nextLine());
+                targetProduct.setStock(newStock);
+                System.out.println("재고가 수정되었습니다.");
+                break;
+            default:
+                System.out.println("잘못된 번호입니다.");
+        }
     }
 
     private void deleteProduct(Scanner scanner) {
-        System.out.println("추후 구현 예정");
+        System.out.println("\n[ 상품 삭제 ]");
+
+        // 1. 대상 찾기 (카테고리 -> 상품)
+        System.out.println("삭제할 상품의 카테고리를 선택해주세요.");
+        for (int i = 0; i < categories.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, categories.get(i).getName());
+        }
+        System.out.print("입력: ");
+
+        int catIdx = Integer.parseInt(scanner.nextLine()) - 1;
+        if (catIdx < 0 || catIdx >= categories.size()) {
+            System.out.println("잘못된 번호입니다.");
+            return;
+        }
+        Category targetCategory = categories.get(catIdx);
+
+        System.out.println("\n삭제할 상품을 선택해주세요.");
+        List<Product> products = targetCategory.getProducts();
+        for (int i = 0; i < products.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, products.get(i).getName());
+        }
+        System.out.print("입력: ");
+
+        int prodIdx = Integer.parseInt(scanner.nextLine()) - 1;
+        if (prodIdx < 0 || prodIdx >= products.size()) {
+            System.out.println("잘못된 번호입니다.");
+            return;
+        }
+        Product targetProduct = products.get(prodIdx);
+
+        // 2. 삭제 의도 재확인 (안전장치)
+        System.out.printf("\n정말 '%s' 상품을 삭제하시겠습니까?\n", targetProduct.getName());
+        System.out.println("1. 확인 (삭제 시 장바구니에서도 제거됩니다)");
+        System.out.println("2. 취소");
+        System.out.print("입력: ");
+
+        int confirm = Integer.parseInt(scanner.nextLine());
+        if (confirm == 1) {
+            // 핵심 로직 1. 상점 진열대에서 제거
+            targetCategory.removeProduct(targetProduct);
+
+            // 핵심 로직 2. 손님 장바구니에서 회수
+            cart.removeProduct(targetProduct);
+
+            System.out.println("상품이 삭제되었습니다.");
+        } else {
+            System.out.println("삭제를 취소했습니다.");
+        }
     }
     private void checkAllProducts() {
         System.out.println("\n[ 전체 상품 현황 ]");
 
-        // 이중 반복문 활용하여 모든 카테고리와 상품 확인
+        // 이중 반복문 활용 모든 카테고리와 상품 확인
         for (Category category : categories) {
             System.out.printf("\n[ %s 카테고리 ]\n", category.getName());
 
@@ -245,6 +338,59 @@ public class CommerceSystem {
                         i + 1, p.getName(), p.getPrice(), p.getStock(), p.getDescription());
             }
         }
+    }
+
+    private Product selectProductToProcess(Scanner scanner, String actionName) {
+        System.out.printf("\n%s할 상품의 카테고리를 선택해주세요.\n", actionName);
+
+        // 1. 카테고리 목록 출력
+        for (int i = 0; i < categories.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, categories.get(i).getName());
+        }
+        System.out.print("입력: ");
+
+        int catIdx = -1;
+        try {
+            catIdx = Integer.parseInt(scanner.nextLine()) - 1;
+        } catch (Exception e) {
+            return null;
+        }
+
+        if (catIdx < 0 || catIdx >= categories.size()) {
+            System.out.println("잘못된 번호입니다.");
+            return null;
+        }
+
+        Category category = categories.get(catIdx);
+
+        // 2. 상품 목록 출력
+        System.out.printf("\n%s할 상품을 선택해주세요.\n", actionName);
+        List<Product> products = category.getProducts();
+
+        if (products.isEmpty()) {
+            System.out.println("해당 카테고리에 상품이 없습니다.");
+            return null;
+        }
+
+        for (int i = 0; i < products.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, products.get(i).getName());
+        }
+        System.out.print("입력: ");
+
+        int prodIdx = -1;
+        try {
+            prodIdx = Integer.parseInt(scanner.nextLine()) - 1;
+        } catch (Exception e) {
+            return null;
+        }
+
+        if (prodIdx < 0 || prodIdx >= products.size()) {
+            System.out.println("잘못된 번호입니다.");
+            return null;
+        }
+
+        // 최종적으로 선택된 상품 객체 반환
+        return products.get(prodIdx);
     }
 
     private void showProductMenu(Scanner scanner, Category category){
@@ -290,8 +436,6 @@ public class CommerceSystem {
                     } else {
                         System.out.println("0개 이하는 담을 수 없습니다.");
                     }
-                    //위에서 입력받은 수량 기준으로 cart 클래스 활용
-                    cart.addProduct(selectedProduct, quantity);
                 }
                 // 취소 시 loop 로 인해서 다시 목록으로 돌아감.
 
