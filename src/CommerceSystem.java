@@ -224,12 +224,14 @@ public class CommerceSystem {
         System.out.print("상품명을 입력해주세요: ");
         String name = scanner.nextLine();
 
-        // 중복 이름 체크 (같은 카테고리 내에 같은 이름 금지)
-        for (Product p : targetCategory.getProducts()) {
-            if (p.getName().equals(name)) {
-                System.out.println("이미 존재하는 상품명입니다! (" + name + ")");
-                return;
-            }
+        // 중복 이름 체크 리팩터링(같은 카테고리 내에 같은 이름 금지)
+        // 상품 리스트 스트림 -> 이름과 입력값 동일 여부 filter 이용 검사
+        boolean isDuplicate = targetCategory.getProducts().stream()
+                .anyMatch(p -> p.getName().equals(name));
+
+        if (isDuplicate) {
+            System.out.println("이미 존재하는 상품명입니다! (" + name + ")");
+            return;
         }
 
         System.out.print("가격을 입력해주세요: ");
